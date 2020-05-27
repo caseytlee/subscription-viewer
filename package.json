@@ -12,11 +12,14 @@
     "@types/react-dom": "^16.9.8",
     "@xstate/react": "^0.8.1",
     "graphql": "^15.0.0",
+    "graphql-tag": "^2.10.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "subscriptions-transport-ws": "^0.9.16",
     "typescript": "^3.7.5",
     "urql": "^1.9.7",
+    "wonka": "^4.0.13",
     "xstate": "^4.10.0"
   },
   "scripts": {
