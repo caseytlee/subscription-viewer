@@ -30,6 +30,7 @@ type StopEvent = { type: "STOP" };
 type ResetEvent = { type: "RESET" };
 type SetUrlEvent = { type: "SET_URL"; url: string };
 type SetQueryEvent = { type: "SET_QUERY"; query: string };
+type SetTokenEvent = { type: "SET_TOKEN"; token: string };
 type PushValueEvent = { type: "PUSH_VALUE"; value: unknown };
 
 type SubscriptionEvent =
@@ -38,12 +39,13 @@ type SubscriptionEvent =
   | ResetEvent
   | SetUrlEvent
   | SetQueryEvent
+  | SetTokenEvent
   | PushValueEvent;
 
 interface SubscriptionContext {
-  authToken?: string;
   url: string;
   query: string;
+  token: string;
   client?: Client;
   subscriptionHandle?: subscriptionT;
   error: string;
@@ -53,6 +55,9 @@ interface SubscriptionContext {
 const initialContext: SubscriptionContext = {
   url: "",
   query: "",
+  token: "",
+  client: undefined,
+  subscriptionHandle: undefined,
   error: "",
   values: [],
 };
@@ -76,6 +81,9 @@ export const subscriptionMachine = Machine<
           SET_QUERY: {
             actions: ["setQuery"],
           },
+          SET_TOKEN: {
+            actions: ["setToken"],
+          },
           RESET: {
             actions: ["reset"],
           },
@@ -92,6 +100,7 @@ export const subscriptionMachine = Machine<
       },
       creatingClient: {
         id: "creatingClient",
+        entry: ["clearClient", "clearSubscriptionHandle", "clearError"],
         invoke: {
           id: "creatingClient",
           src: "createClient",
@@ -135,6 +144,9 @@ export const subscriptionMachine = Machine<
           SET_QUERY: {
             actions: ["setQuery"],
           },
+          SET_TOKEN: {
+            actions: ["setToken"],
+          },
           RESET: {
             target: "idle",
             actions: ["reset"],
@@ -166,6 +178,9 @@ export const subscriptionMachine = Machine<
       setQuery: assign({
         query: (_, event) => (event as SetQueryEvent).query,
       }),
+      setToken: assign({
+        token: (_, event) => (event as SetTokenEvent).token,
+      }),
       setClient: assign({
         client: (_, event) => (event as DoneInvokeEvent<Client>).data,
       }),
@@ -173,6 +188,12 @@ export const subscriptionMachine = Machine<
         subscriptionHandle: (_, event) =>
           (event as DoneInvokeEvent<subscriptionT>).data,
       }),
+      clearClient: assign((context) => ({ ...context, client: undefined })),
+      clearSubscriptionHandle: assign((context) => ({
+        ...context,
+        subscriptionHandle: undefined,
+      })),
+      clearError: assign((context) => ({ ...context, error: "" })),
       setError: assign({
         error: (_, event) => (event as DoneInvokeEvent<string>).data,
       }),
@@ -191,7 +212,17 @@ export const subscriptionMachine = Machine<
         const url = context.url;
         const subscriptionClient = new SubscriptionClient(
           url.replace("http", "ws"),
-          { reconnect: true }
+          {
+            reconnect: true,
+            lazy: true,
+            timeout: 30000,
+            connectionParams: () =>
+              context.token
+                ? {
+                    Authorization: `Bearer ${context.token}`,
+                  }
+                : {},
+          }
         );
 
         const client = createClient({

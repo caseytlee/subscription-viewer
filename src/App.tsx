@@ -34,6 +34,17 @@ function App() {
           }
         />
       </div>
+      <div>
+        Bearer Token:{" "}
+        <input
+          name="token"
+          disabled={!current.nextEvents.includes("SET_TOKEN")}
+          value={current.context.token}
+          onChange={(event) =>
+            send({ type: "SET_TOKEN", token: event.target.value })
+          }
+        />
+      </div>
       <React.Fragment>
         <button
           onClick={() => send({ type: "RESET" })}
