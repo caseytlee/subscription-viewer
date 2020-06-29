@@ -1,6 +1,10 @@
 import React from "react";
 import { useMachine } from "@xstate/react";
 
+import Label from "./components/label";
+import Input from "./components/input";
+import Textarea from "./components/textarea";
+import Button from "./components/button";
 import { subscriptionMachine } from "./machines/subscription-machine";
 
 function App() {
@@ -10,53 +14,56 @@ function App() {
   // service.onTransition((state) => console.log("state:", state.value));
 
   return (
-    <React.Fragment>
+    <main className="container mx-auto">
       <div>
-        URL:{" "}
-        <input
+        <Label htmlFor="url">URL</Label>
+        <Input
           type="text"
           name="url"
           disabled={!current.nextEvents.includes("SET_URL")}
           value={current.context.url}
-          onChange={(event) =>
-            send({ type: "SET_URL", url: event.target.value })
+          onChange={({ currentTarget }) =>
+            send({
+              type: "SET_URL",
+              url: currentTarget.value,
+            })
           }
         />
       </div>
       <div>
-        Query:{" "}
-        <textarea
+        <Label htmlFor="query">Query</Label>
+        <Textarea
           name="query"
           disabled={!current.nextEvents.includes("SET_QUERY")}
           value={current.context.query}
           onChange={(event) =>
-            send({ type: "SET_QUERY", query: event.target.value })
+            send({ type: "SET_QUERY", query: event.currentTarget.value })
           }
         />
       </div>
       <div>
-        Bearer Token:{" "}
-        <input
+        <Label htmlFor="token">Bearer Token</Label>
+        <Input
           name="token"
           disabled={!current.nextEvents.includes("SET_TOKEN")}
           value={current.context.token}
-          onChange={(event) =>
-            send({ type: "SET_TOKEN", token: event.target.value })
+          onChange={({ currentTarget }) =>
+            send({ type: "SET_TOKEN", token: currentTarget.value })
           }
         />
       </div>
       <React.Fragment>
-        <button
+        <Button
           onClick={() => send({ type: "RESET" })}
           disabled={current.nextEvents.includes("STOP")}
         >
           Reset
-        </button>
+        </Button>
         {current.nextEvents.includes("SUBSCRIBE") && (
-          <button onClick={() => send({ type: "SUBSCRIBE" })}>Subscribe</button>
+          <Button onClick={() => send({ type: "SUBSCRIBE" })}>Subscribe</Button>
         )}
         {current.nextEvents.includes("STOP") && (
-          <button onClick={() => send({ type: "STOP" })}>Stop</button>
+          <Button onClick={() => send({ type: "STOP" })}>Stop</Button>
         )}
       </React.Fragment>
       <div>
@@ -69,7 +76,7 @@ function App() {
         )}
       </div>
       <div>{JSON.stringify(current.context.values)}</div>
-    </React.Fragment>
+    </main>
   );
 }
 
