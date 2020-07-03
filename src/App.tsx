@@ -7,6 +7,16 @@ import Textarea from "./components/textarea";
 import Button from "./components/button";
 import { subscriptionMachine } from "./machines/subscription-machine";
 
+const DATE_FORMAT_OPTIONS = {
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+  hour12: false,
+};
+
 function App() {
   const [current, send] = useMachine(subscriptionMachine);
 
@@ -80,8 +90,13 @@ function App() {
         <ul className="list-none">
           {current.context.values.map((message) => (
             <li>
-              <h2>{Date.now()}</h2>
-              <pre>{JSON.stringify(message, null, 2)}</pre>
+              <h2>
+                {new Intl.DateTimeFormat(
+                  window.navigator.language,
+                  DATE_FORMAT_OPTIONS
+                ).format(message.timestamp)}
+              </h2>
+              <pre>{JSON.stringify(message.value, null, 2)}</pre>
             </li>
           ))}
         </ul>

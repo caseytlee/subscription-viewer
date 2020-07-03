@@ -42,6 +42,11 @@ type SubscriptionEvent =
   | SetTokenEvent
   | PushValueEvent;
 
+interface Value {
+  timestamp: Date;
+  value: unknown;
+}
+
 interface SubscriptionContext {
   url: string;
   query: string;
@@ -49,7 +54,7 @@ interface SubscriptionContext {
   client?: Client;
   subscriptionHandle?: subscriptionT;
   error: string;
-  values: unknown[];
+  values: Value[];
 }
 
 const initialContext: SubscriptionContext = {
@@ -200,7 +205,10 @@ export const subscriptionMachine = Machine<
       pushValue: assign({
         values: (context, event) => [
           ...context.values,
-          (event as PushValueEvent).value,
+          {
+            timestamp: new Date(),
+            value: (event as PushValueEvent).value,
+          },
         ],
       }),
     },
