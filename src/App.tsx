@@ -88,8 +88,8 @@ function App() {
       </section>
       <section className="p-4 border border-gray-400 overflow-auto">
         <ul className="list-none">
-          {current.context.values.map((message) => (
-            <li>
+          {current.context.values.map((message, index) => (
+            <li key={index}>
               <h2>
                 {new Intl.DateTimeFormat(
                   window.navigator.language,
