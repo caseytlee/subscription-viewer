@@ -27,7 +27,6 @@ interface SubscriptionStateSchema {
 
 type SubscribeEvent = { type: "SUBSCRIBE" };
 type StopEvent = { type: "STOP" };
-type ResetEvent = { type: "RESET" };
 type SetUrlEvent = { type: "SET_URL"; url: string };
 type SetQueryEvent = { type: "SET_QUERY"; query: string };
 type SetTokenEvent = { type: "SET_TOKEN"; token: string };
@@ -36,7 +35,6 @@ type PushValueEvent = { type: "PUSH_VALUE"; value: unknown };
 type SubscriptionEvent =
   | SubscribeEvent
   | StopEvent
-  | ResetEvent
   | SetUrlEvent
   | SetQueryEvent
   | SetTokenEvent
@@ -57,14 +55,53 @@ interface SubscriptionContext {
   values: Value[];
 }
 
-const initialContext: SubscriptionContext = {
-  url: "",
-  query: "",
-  token: "",
-  client: undefined,
-  subscriptionHandle: undefined,
-  error: "",
-  values: [],
+const getInitialContext = (): SubscriptionContext => {
+  const initialContext = {
+    url: "",
+    query: "",
+    token: "",
+    client: undefined,
+    subscriptionHandle: undefined,
+    error: "",
+    values: [],
+  };
+
+  const localStorageString = localStorage.getItem("subsription-viewer-context");
+
+  if (!localStorageString) {
+    localStorage.setItem(
+      "subsription-viewer-context",
+      JSON.stringify(initialContext)
+    );
+    return initialContext;
+  }
+
+  const { url, query } = JSON.parse(localStorageString);
+
+  return {
+    ...initialContext,
+    url,
+    query,
+  };
+};
+
+const setInLocalStorage = (key: string, value: unknown) => {
+  let storageItemString = localStorage.getItem("subsription-viewer-context");
+  let newStorageObject;
+
+  if (storageItemString) {
+    newStorageObject = JSON.parse(storageItemString);
+
+    newStorageObject = {
+      ...newStorageObject,
+      [key]: value,
+    };
+  }
+
+  localStorage.setItem(
+    "subsription-viewer-context",
+    JSON.stringify(newStorageObject)
+  );
 };
 
 export const subscriptionMachine = Machine<
@@ -75,22 +112,19 @@ export const subscriptionMachine = Machine<
   {
     id: "subscription",
     initial: "idle",
-    context: initialContext,
+    context: getInitialContext(),
     states: {
       idle: {
         id: "idle",
         on: {
           SET_URL: {
-            actions: ["setUrl"],
+            actions: ["setUrlInStorage", "setUrlInContext"],
           },
           SET_QUERY: {
-            actions: ["setQuery"],
+            actions: ["setQueryInStorage", "setQuery"],
           },
           SET_TOKEN: {
             actions: ["setToken"],
-          },
-          RESET: {
-            actions: ["reset"],
           },
           SUBSCRIBE: [
             {
@@ -144,17 +178,13 @@ export const subscriptionMachine = Machine<
         id: "failure",
         on: {
           SET_URL: {
-            actions: ["setUrl"],
+            actions: ["setUrlInStorage", "setUrlInContext"],
           },
           SET_QUERY: {
-            actions: ["setQuery"],
+            actions: ["setQueryInStorage", "setQuery"],
           },
           SET_TOKEN: {
             actions: ["setToken"],
-          },
-          RESET: {
-            target: "idle",
-            actions: ["reset"],
           },
           SUBSCRIBE: [
             {
@@ -176,13 +206,16 @@ export const subscriptionMachine = Machine<
   },
   {
     actions: {
-      reset: assign((context) => ({ ...context, ...initialContext })),
-      setUrl: assign({
+      setUrlInContext: assign({
         url: (_, event) => (event as SetUrlEvent).url,
       }),
+      setUrlInStorage: (_, event) =>
+        setInLocalStorage("url", (event as SetUrlEvent).url),
       setQuery: assign({
         query: (_, event) => (event as SetQueryEvent).query,
       }),
+      setQueryInStorage: (_, event) =>
+        setInLocalStorage("query", (event as SetQueryEvent).query),
       setToken: assign({
         token: (_, event) => (event as SetTokenEvent).token,
       }),
