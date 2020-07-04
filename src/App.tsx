@@ -1,5 +1,6 @@
 import React from "react";
 import { useMachine } from "@xstate/react";
+import { motion } from "framer-motion";
 
 import Label from "./components/label";
 import Input from "./components/input";
@@ -16,6 +17,8 @@ const DATE_FORMAT_OPTIONS = {
   second: "numeric",
   hour12: false,
 };
+
+const MotionButton = motion.custom(Button);
 
 function App() {
   const [current, send] = useMachine(subscriptionMachine);
@@ -73,14 +76,22 @@ function App() {
           </div>
           <div className="flex justify-end">
             {current.nextEvents.includes("SUBSCRIBE") && (
-              <Button onClick={() => send({ type: "SUBSCRIBE" })}>
+              <MotionButton
+                onClick={() => send({ type: "SUBSCRIBE" })}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
                 Subscribe
-              </Button>
+              </MotionButton>
             )}
             {current.nextEvents.includes("STOP") && (
-              <Button onClick={() => send({ type: "STOP" })}>
+              <MotionButton
+                onClick={() => send({ type: "STOP" })}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
                 Unsubscribe
-              </Button>
+              </MotionButton>
             )}
           </div>
           <div>

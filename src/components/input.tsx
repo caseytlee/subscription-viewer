@@ -1,6 +1,9 @@
 import React from "react";
 
-function Input(props: React.HTMLProps<HTMLInputElement>) {
+const Input = React.forwardRef<
+  HTMLInputElement,
+  React.HTMLProps<HTMLInputElement>
+>((props, ref) => {
   let classNames =
     "w-full bg-gray-200 border border-transparent rounded p-2 focus:outline-none focus:shadow-outline focus:bg-white";
 
@@ -8,7 +11,7 @@ function Input(props: React.HTMLProps<HTMLInputElement>) {
     classNames = `${classNames} ${props.className}`;
   }
 
-  return <input {...props} className={classNames} />;
-}
+  return <input ref={ref} {...props} className={classNames} />;
+});
 
 export default Input;
