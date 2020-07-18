@@ -31,6 +31,7 @@ type SetUrlEvent = { type: "SET_URL"; url: string };
 type SetQueryEvent = { type: "SET_QUERY"; query: string };
 type SetTokenEvent = { type: "SET_TOKEN"; token: string };
 type PushValueEvent = { type: "PUSH_VALUE"; value: unknown };
+type ClearValuesEvent = { type: "CLEAR_VALUES" };
 
 type SubscriptionEvent =
   | SubscribeEvent
@@ -38,7 +39,8 @@ type SubscriptionEvent =
   | SetUrlEvent
   | SetQueryEvent
   | SetTokenEvent
-  | PushValueEvent;
+  | PushValueEvent
+  | ClearValuesEvent;
 
 interface Value {
   timestamp: Date;
@@ -203,6 +205,11 @@ export const subscriptionMachine = Machine<
         },
       },
     },
+    on: {
+      CLEAR_VALUES: {
+        actions: ["clearValues"],
+      },
+    },
   },
   {
     actions: {
@@ -244,6 +251,7 @@ export const subscriptionMachine = Machine<
           },
         ],
       }),
+      clearValues: assign((context) => ({ ...context, values: [] })),
     },
     guards: {
       isValidUrl: (context: SubscriptionContext) => context.url.length > 0,
