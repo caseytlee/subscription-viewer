@@ -54,7 +54,12 @@ function App() {
       <section className="p-4 border border-gray-400">
         <div className="relative flex flex-col h-full">
           {current.nextEvents.includes("STOP") && (
-            <div className="absolute right-0 top-0">
+            <div
+              role="alert"
+              id="subscribed-message"
+              aria-label="Subscribed and listening"
+              className="absolute right-0 top-0"
+            >
               Subscribed and listening...
             </div>
           )}
@@ -63,6 +68,7 @@ function App() {
             <Label htmlFor="url">URL</Label>
             <Input
               type="text"
+              id="url"
               name="url"
               disabled={!current.nextEvents.includes("SET_URL")}
               value={current.context.url}
@@ -77,6 +83,7 @@ function App() {
           <div className="h-20">
             <Label htmlFor="token">Bearer Token</Label>
             <Input
+              id="token"
               name="token"
               disabled={!current.nextEvents.includes("SET_TOKEN")}
               value={current.context.token}
@@ -88,6 +95,7 @@ function App() {
           <div className="flex flex-col flex-grow">
             <Label htmlFor="query">Query</Label>
             <Textarea
+              id="query"
               name="query"
               className="flex-1 mb-4 resize-none"
               disabled={!current.nextEvents.includes("SET_QUERY")}
@@ -150,7 +158,7 @@ function App() {
                 Clear
               </MotionButton>
             </div>
-            <ul className="list-none">
+            <ul id="output" aria-label="output" className="list-none">
               {current.context.values.map((message, index) => (
                 <li key={index}>
                   <h2>

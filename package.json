@@ -46,7 +46,10 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/cypress": "^6.0.0",
     "autoprefixer": "^9.8.4",
+    "cypress": "^4.10.0",
+    "mock-socket": "^9.0.3",
     "postcss-cli": "^7.1.1",
     "tailwindcss": "^1.4.6"
   }
