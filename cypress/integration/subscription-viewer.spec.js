@@ -60,12 +60,14 @@ context("WebSocket", () => {
         parseSpecialCharSequences: false,
       });
 
+      cy.findByRole("button", { name: /clear/i }).should("not.exist");
+
       cy.findByRole("button", { name: /subscribe/i }).click();
 
       cy.findByRole("alert", { name: /subscribed and listening/i });
+
       cy.findByRole("button", { name: /unsubscribe/i });
 
-      cy.findByRole("button", { name: /clear/i }).should("not.exist");
       cy.findByRole("button", { name: /clear/i });
 
       cy.findByRole("list", { name: /output/i });
